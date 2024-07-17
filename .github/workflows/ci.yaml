@@ -80,8 +80,7 @@ jobs:
       run: cabal --builddir="$CABAL_BUILDDIR" build all
 
     - name: free-category [test]
-      run: cabal --builddir="$CABAL_BUILDDIR" run free-category:test-cats 
+      run: cabal --builddir="$CABAL_BUILDDIR" run free-category:test-cats
 
     - name: free-category [benchmarks]
       run: cabal build free-category:benchmarks
-
