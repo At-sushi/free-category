@@ -125,44 +125,43 @@ instance FreeAlgebra2 Arr where
 
 -- | Free arrow using CPS style.
 --
-newtype A f a b
-  = A { runA :: forall r. Arrow r
-             => (forall x y. f x y -> r x y)
+newtype A f r a b
+  = A { runA :: (forall x y. f x y -> r x y)
              -> r a b
       }
 
 -- | Isomorphism from @'Arr'@ to @'A'@, which is a specialisation of
 -- @'hoistFreeH2'@.
 --
-toA :: Arr f a b -> A f a b
+toA :: Arrow r => Arr f a b -> A f r a b
 toA = hoistFreeH2
 {-# INLINE toA #-}
 
 -- | Inverse of @'fromA'@, which also is a specialisation of @'hoistFreeH2'@.
 --
-fromA :: A f a b -> Arr f a b
+fromA :: Arrow r => A f r a b -> Arr f a b
 fromA = hoistFreeH2
 {-# INLINE fromA #-}
 
-instance Category (A f) where
+instance Category r => Category (A f r) where
   id = A (\_ -> id)
   A f . A g = A $ \k -> f k . g k
 
-instance Semigroup (A f o o) where
+instance Category r => Semigroup (A f r o o) where
     f <> g = f . g
 
-instance Monoid (A f o o) where
+instance Category r => Monoid (A f r o o) where
     mempty = id
 
-instance Arrow (A f) where
+instance Arrow r => Arrow (A f r) where
   arr f = A (\_ -> (arr f))
   A f *** A g  = A $ \k -> f k *** g k
   first  (A f) = A $ \k -> first (f k)
   second (A f) = A $ \k -> second (f k)
 
-instance Profunctor (A f) where
-  lmap f a = arr f >>> a
-  rmap f a = a >>> arr f
+instance Profunctor r => Profunctor (A f r) where
+  lmap f (A g) = A $ \k -> lmap f (g k)
+  rmap f (A g) = A $ \k -> rmap f (g k)
 
 type instance AlgebraType0 A f = ()
 type instance AlgebraType  A c = Arrow c
