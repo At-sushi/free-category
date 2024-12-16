@@ -160,6 +160,7 @@ instance Arrow r => Arrow (A f r) where
   second (A f) = A $ \k -> second (f k)
 
 instance Profunctor r => Profunctor (A f r) where
+  dimap f g (A h) = A $ \k -> dimap f g (h k)
   lmap f (A g) = A $ \k -> lmap f (g k)
   rmap f (A g) = A $ \k -> rmap f (g k)
 
